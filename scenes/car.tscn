@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://c1grc88xhv8mu"]
+
+[ext_resource type="Script" path="res://scenes/car.gd" id="1_rjlhy"]
+[ext_resource type="Material" uid="uid://dn16yhnqtqh7i" path="res://addons/kenney_prototype_tools/materials/orange/material_02.tres" id="2_8cnlq"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_tuyew"]
+bounce = 0.1
+
+[sub_resource type="SphereMesh" id="SphereMesh_wxir2"]
+material = ExtResource("2_8cnlq")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_41ghe"]
+
+[node name="Node3D" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_tuyew")
+gravity_scale = 5.0
+angular_damp = 10.0
+script = ExtResource("1_rjlhy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_wxir2")
+
+[node name="RayCast3D" type="RayCast3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_41ghe")

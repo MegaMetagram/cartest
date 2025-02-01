@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bw6b32unijxxg"]
+[gd_scene load_steps=5 format=3 uid="uid://bw6b32unijxxg"]
 
 [ext_resource type="Script" path="res://scenes/cars_2.gd" id="1_ksq1o"]
+[ext_resource type="Script" path="res://scenes/wheels.gd" id="2_k2a0b"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_s77q4"]
 size = Vector3(1, 0.25, 2)
@@ -9,6 +10,8 @@ size = Vector3(1, 0.25, 2)
 size = Vector3(1, 0.25, 2)
 
 [node name="Cars2" type="RigidBody3D"]
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.5, 0)
 script = ExtResource("1_ksq1o")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -21,15 +24,19 @@ mesh = SubResource("BoxMesh_3jvf0")
 [node name="topLeftRC" type="RayCast3D" parent="CollisionShape3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 1)
 target_position = Vector3(0, -0.5, 0)
+script = ExtResource("2_k2a0b")
 
 [node name="topRightRC" type="RayCast3D" parent="CollisionShape3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 1)
 target_position = Vector3(0, -0.5, 0)
+script = ExtResource("2_k2a0b")
 
 [node name="botLeftRC" type="RayCast3D" parent="CollisionShape3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -1.00042)
 target_position = Vector3(0, -0.5, 0)
+script = ExtResource("2_k2a0b")
 
 [node name="botRightRC" type="RayCast3D" parent="CollisionShape3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, -1)
 target_position = Vector3(0, -0.5, 0)
+script = ExtResource("2_k2a0b")

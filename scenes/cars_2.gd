@@ -1,44 +1,56 @@
 extends RigidBody3D
 
-#parameters
-var hoverHeight: float = 1.0
-var springStrength: float = 3.0
-var damping: float = 3
-var rayCastNodes: Array = []
+# Control parameters
+var acceleration: float = 5.0
+var steer_angle: float = 0.0
+var max_steer_angle: float = 30.0
+var turn_speed: float = 5.0
+var friction: float = 0.1  # Friction value
+
+# Debug toggles
+var debugRaycasts: bool = true
+var debugForces: bool = true
+var debugTorques: bool = true
 
 @onready var botLeftRC = $CollisionShape3D/botLeftRC
 @onready var botRightRC = $CollisionShape3D/botRightRC
 @onready var topLeftRC = $CollisionShape3D/topLeftRC
 @onready var topRightRC = $CollisionShape3D/topRightRC
 
+# List of raycasts
+var raycast_nodes: Array
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	#get raycasts at start
-	rayCastNodes = [$CollisionShape3D/topLeftRC, $CollisionShape3D/topRightRC, $CollisionShape3D/botLeftRC, $CollisionShape3D/botRightRC]
+    raycast_nodes = [topLeftRC, topRightRC, botLeftRC, botRightRC]
+    for raycast in raycast_nodes:
+        raycast.car_body = self
+
+func _physics_process(delta: float):
+    var direction = Vector3.ZERO
+
+    # Forward/backward input
+    if Input.is_action_pressed("ui_up"):
+        direction -= transform.basis.z * acceleration
+    elif Input.is_action_pressed("ui_down"):
+        direction += transform.basis.z * acceleration
+
+    # Apply friction
+    direction -= linear_velocity * friction
+
+    # Steering input
+    if Input.is_action_pressed("ui_left"):
+        steer_angle -= turn_speed * delta
+    elif Input.is_action_pressed("ui_right"):
+        steer_angle += turn_speed * delta
+    else:
+        steer_angle = 0.0  # Reset when no input
+
+    # Clamp the steering angle
+    steer_angle = clamp(steer_angle, -max_steer_angle, max_steer_angle)
+
+    # Apply movement
+    apply_central_impulse(direction * delta)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	var totalForce = Vector3.ZERO
-	var totalTorque = Vector3.ZERO
-
-	for raycast in rayCastNodes:
-		if raycast.is_colliding():
-			#distance to ground
-			var collisionPoint = raycast.get_collision_point()
-			var distance = (raycast.global_transform.origin - collisionPoint).length()
-
-			#hover height
-			var hoverForce = (hoverHeight - distance) * springStrength
-			hoverForce -= state.get_linear_velocity().y * damping
-
-			#only upwards force
-			if hoverForce > 0:
-				var force = Vector3(0, hoverForce, 0)
-				totalForce += force
-				state.apply_force(force, raycast.global_transform.origin)
-
-				#torque tilt correction calculations
-				var relativePosition = raycast.global_transform.origin - global_transform.origin
-				var torque = relativePosition.cross(force)
-				totalForce += torque
-	state.apply_torque_impulse(totalTorque)
+    for raycast in raycast_nodes:
+        raycast.apply_wheel_forces(state)
